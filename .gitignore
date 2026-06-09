@@ -1,0 +1,33 @@
+# Build outputs
+bin/
+obj/
+out/
+
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Spec files
+*.pdf
+*.txt
+
+# EF Core migrations snapshots (keep .cs migrations, ignore designer files)
+**/Migrations/*Designer.cs

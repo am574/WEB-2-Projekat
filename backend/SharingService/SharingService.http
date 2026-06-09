@@ -1,0 +1,6 @@
+@SharingService_HostAddress = http://localhost:5010
+
+GET {{SharingService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
