@@ -51,12 +51,12 @@ export default function TravelPlanDetailPage() {
     <>
       <Navbar />
       <div className="container py-4">
-        <div className="d-flex justify-content-between align-items-start mb-1">
+        <button className="btn btn-sm btn-link text-muted p-0 mb-3" onClick={() => navigate('/dashboard')}>
+          ← Back to Dashboard
+        </button>
+        <div className="d-flex justify-content-between align-items-start mb-4">
           <div>
-            <button className="btn btn-sm btn-link text-muted p-0 mb-2" onClick={() => navigate('/dashboard')}>
-              ← Back to Dashboard
-            </button>
-            <h2 className="mb-0">{currentPlan.name}</h2>
+            <h2 className="fw-bold mb-1">{currentPlan.name}</h2>
             <p className="text-muted mb-0">{currentPlan.startDate} → {currentPlan.endDate}</p>
           </div>
           <div className="d-flex gap-2">
@@ -88,7 +88,7 @@ export default function TravelPlanDetailPage() {
 
         {activeTab === 'Overview' && <OverviewTab plan={currentPlan} />}
         {activeTab === 'Destinations' && <DestinationsTab planId={id} />}
-        {activeTab === 'Activities' && <ActivitiesTab planId={id} destinations={currentPlan.destinations} />}
+        {activeTab === 'Activities' && <ActivitiesTab planId={id} />}
         {activeTab === 'Expenses' && <ExpensesTab planId={id} />}
         {activeTab === 'Checklist' && <ChecklistTab planId={id} />}
         {activeTab === 'Sharing' && <SharingTab planId={id} />}

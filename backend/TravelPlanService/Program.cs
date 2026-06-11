@@ -1,4 +1,5 @@
 using TravelPlanService.Data;
+using TravelPlanService.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,7 +29,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddHttpClient();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opts => opts.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter()));
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(p =>
         p.WithOrigins(config["AllowedOrigin"]!)

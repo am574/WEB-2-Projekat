@@ -25,7 +25,7 @@ export default function ChecklistTab({ planId }) {
     if (!newText.trim()) return;
     setAddError('');
     try {
-      const created = await travelPlanService.createChecklistItem(planId, { text: newText.trim() });
+      const created = await travelPlanService.createChecklistItem(planId, { name: newText.trim() });
       setItems(prev => [...prev, created]);
       setNewText('');
     } catch (err) {
@@ -92,7 +92,7 @@ export default function ChecklistTab({ planId }) {
                   style={{ width: 20, height: 20, cursor: 'pointer' }}
                 />
                 <span className={`flex-grow-1 ${item.isCompleted ? 'text-muted text-decoration-line-through' : ''}`}>
-                  {item.text}
+                  {item.name}
                 </span>
                 <button className="btn btn-sm btn-outline-danger ms-auto" onClick={() => handleDelete(item.id)}>✕</button>
               </div>

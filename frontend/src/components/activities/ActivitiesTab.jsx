@@ -6,8 +6,9 @@ import LoadingSpinner from '../common/LoadingSpinner';
 
 const STATUS_COLORS = { Planned: 'secondary', Reserved: 'primary', Completed: 'success', Cancelled: 'danger' };
 
-export default function ActivitiesTab({ planId, destinations }) {
+export default function ActivitiesTab({ planId }) {
   const [activities, setActivities] = useState([]);
+  const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -21,7 +22,12 @@ export default function ActivitiesTab({ planId, destinations }) {
   const load = async () => {
     try {
       setLoading(true);
-      setActivities(await travelPlanService.getActivities(planId));
+      const [acts, dests] = await Promise.all([
+        travelPlanService.getActivities(planId),
+        travelPlanService.getDestinations(planId),
+      ]);
+      setActivities(acts);
+      setDestinations(dests);
     } catch { setError('Failed to load activities.'); }
     finally { setLoading(false); }
   };
