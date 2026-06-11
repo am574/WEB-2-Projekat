@@ -1,7 +1,44 @@
-using Microsoft.ServiceFabric.Services.Runtime;
+using SharingService.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
-ServiceRuntime.RegisterServiceAsync("SharingServiceType",
-    context => new SharingStatelessService(context))
-    .GetAwaiter().GetResult();
+var builder = WebApplication.CreateBuilder(args);
+var config = builder.Configuration;
 
-Thread.Sleep(Timeout.Infinite);
+builder.Services.AddDbContext<SharingDbContext>(options =>
+    options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = config["Jwt:Issuer"],
+            ValidAudience = config["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(config["Jwt:Key"]!))
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddHttpClient();
+builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+    options.AddDefaultPolicy(p =>
+        p.WithOrigins(config["AllowedOrigin"]!)
+         .AllowAnyHeader().AllowAnyMethod()));
+
+var app = builder.Build();
+
+app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+app.Run();

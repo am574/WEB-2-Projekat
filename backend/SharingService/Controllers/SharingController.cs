@@ -27,6 +27,29 @@ public class SharingController : ControllerBase
         _config = config;
     }
 
+    [HttpGet("/api/travel-plans/{planId:guid}/share")]
+    [Authorize]
+    public async Task<IActionResult> GetShareTokensForPlan(Guid planId)
+    {
+        if (!await PlanBelongsToUser(planId))
+            return NotFound();
+
+        var tokens = await _db.ShareTokens
+            .Where(s => s.TravelPlanId == planId)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
+
+        return Ok(tokens.Select(s => new ShareTokenDto
+        {
+            Id = s.Id,
+            TravelPlanId = s.TravelPlanId,
+            Token = s.Token,
+            AccessType = s.AccessType,
+            CreatedAt = s.CreatedAt,
+            ExpiresAt = s.ExpiresAt
+        }));
+    }
+
     [HttpPost("/api/travel-plans/{planId:guid}/share")]
     [Authorize]
     public async Task<IActionResult> CreateShareToken(Guid planId, [FromBody] CreateShareTokenDto dto)
