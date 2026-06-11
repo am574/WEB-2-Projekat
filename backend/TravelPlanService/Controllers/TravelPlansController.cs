@@ -143,6 +143,46 @@ public class TravelPlansController : ControllerBase
         return Ok(MapToDto(plan));
     }
 
+    [HttpGet("admin/all")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAllAdmin()
+    {
+        var plans = await _db.TravelPlans
+            .Select(p => new TravelPlanDto
+            {
+                Id = p.Id,
+                UserId = p.UserId,
+                Name = p.Name,
+                Description = p.Description,
+                StartDate = p.StartDate,
+                EndDate = p.EndDate,
+                Budget = p.Budget,
+                Notes = p.Notes,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt
+            })
+            .ToListAsync();
+
+        return Ok(plans);
+    }
+
+    [HttpDelete("admin/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteAdmin(Guid id)
+    {
+        var plan = await _db.TravelPlans.FirstOrDefaultAsync(p => p.Id == id);
+        if (plan == null) return NotFound();
+
+        _db.TravelPlans.Remove(plan);
+        await _db.SaveChangesAsync();
+
+        var client = _httpClientFactory.CreateClient();
+        _ = client.DeleteAsync($"{_config["ExpenseServiceUrl"]}/api/expenses/by-plan/{id}");
+        _ = client.DeleteAsync($"{_config["SharingServiceUrl"]}/api/sharing/by-plan/{id}");
+
+        return NoContent();
+    }
+
     private Guid GetUserId() =>
         Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 

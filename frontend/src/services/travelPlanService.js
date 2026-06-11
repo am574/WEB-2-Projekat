@@ -104,6 +104,16 @@ const travelPlanService = {
   async removeChecklistItem(id) {
     await api.delete(`/api/checklist/${id}`);
   },
+
+  // Admin
+  async getAllAdmin() {
+    const res = await api.get('/api/travel-plans/admin/all');
+    return res.data.map(p => new TravelPlan(p));
+  },
+
+  async removeAdmin(id) {
+    await api.delete(`/api/travel-plans/admin/${id}`);
+  },
 };
 
 export default travelPlanService;
