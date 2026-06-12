@@ -16,87 +16,70 @@ graph LR
     User(["👤 User"])
     Admin(["👤 Admin"])
 
+    Admin -.->|extends| User
+
     subgraph Auth["Authentication"]
-        UC1["Register"]
-        UC2["Login"]
+        UC1(["Register"])
+        UC2(["Login"])
     end
 
     subgraph Plans["Travel Plan Management"]
-        UC3["Create Travel Plan"]
-        UC4["View Travel Plan List"]
-        UC5["View Travel Plan Details"]
-        UC6["Edit Travel Plan"]
-        UC7["Delete Travel Plan"]
+        UC3(["Create Travel Plan"])
+        UC4(["View Travel Plan List"])
+        UC5(["View Travel Plan Details"])
+        UC6(["Edit Travel Plan"])
+        UC7(["Delete Travel Plan"])
     end
 
     subgraph Destinations["Destination Management"]
-        UC8["Add Destination"]
-        UC9["Edit Destination"]
-        UC10["Delete Destination"]
+        UC8(["Add Destination"])
+        UC9(["Edit Destination"])
+        UC10(["Delete Destination"])
     end
 
     subgraph Activities["Activity Management"]
-        UC11["Add Activity"]
-        UC12["Edit Activity"]
-        UC13["Delete Activity"]
-        UC14["View Activities as Calendar"]
+        UC11(["Add Activity"])
+        UC12(["Edit Activity"])
+        UC13(["Delete Activity"])
+        UC14(["View as Calendar"])
     end
 
     subgraph Expenses["Expense Tracking"]
-        UC15["Add Expense"]
-        UC16["Edit / Delete Expense"]
-        UC17["View Budget Summary"]
+        UC15(["Add Expense"])
+        UC16(["Edit / Delete Expense"])
+        UC17(["View Budget Summary"])
     end
 
     subgraph Checklist["Checklist"]
-        UC18["Add Checklist Item"]
-        UC19["Toggle Item Complete"]
-        UC20["Delete Checklist Item"]
+        UC18(["Add Checklist Item"])
+        UC19(["Toggle Complete"])
+        UC20(["Delete Item"])
     end
 
     subgraph Sharing["Plan Sharing"]
-        UC21["Generate Share Link (VIEW)"]
-        UC22["Generate Share Link (EDIT)"]
-        UC23["Generate QR Code"]
-        UC24["View Shared Plan (public)"]
-        UC25["Revoke Share Link"]
+        UC21(["Generate Share Link (VIEW)"])
+        UC22(["Generate Share Link (EDIT)"])
+        UC23(["Generate QR Code"])
+        UC24(["View Shared Plan (public)"])
+        UC25(["Revoke Share Link"])
     end
 
     subgraph Administration["Administration"]
-        UC26["View All Users"]
-        UC27["Delete User Account"]
+        UC26(["View All Users"])
+        UC27(["Delete User Account"])
     end
 
-    Guest --> UC1
-    Guest --> UC2
-    Guest --> UC24
+    Guest --- Auth
+    Guest --- Sharing
 
-    User --> UC3
-    User --> UC4
-    User --> UC5
-    User --> UC6
-    User --> UC7
-    User --> UC8
-    User --> UC9
-    User --> UC10
-    User --> UC11
-    User --> UC12
-    User --> UC13
-    User --> UC14
-    User --> UC15
-    User --> UC16
-    User --> UC17
-    User --> UC18
-    User --> UC19
-    User --> UC20
-    User --> UC21
-    User --> UC22
-    User --> UC23
-    User --> UC25
+    User --- Plans
+    User --- Destinations
+    User --- Activities
+    User --- Expenses
+    User --- Checklist
+    User --- Sharing
 
-    Admin --> User
-    Admin --> UC26
-    Admin --> UC27
+    Admin --- Administration
 ```
 
 ## Use Case Descriptions
