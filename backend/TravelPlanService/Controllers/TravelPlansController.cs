@@ -129,6 +129,22 @@ public class TravelPlansController : ControllerBase
         return NoContent();
     }
 
+    [HttpPut("{id:guid}/by-token")]
+    [AllowAnonymous]
+    public async Task<IActionResult> UpdateByToken(Guid id, [FromBody] UpdateByTokenDto dto)
+    {
+        var plan = await _db.TravelPlans.FirstOrDefaultAsync(p => p.Id == id);
+        if (plan == null) return NotFound();
+
+        plan.Name = dto.Name;
+        plan.Description = dto.Description;
+        plan.Notes = dto.Notes;
+        plan.UpdatedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+        return Ok(MapToDto(plan));
+    }
+
     [HttpGet("{id:guid}/public")]
     [AllowAnonymous]
     public async Task<IActionResult> GetByIdPublic(Guid id)

@@ -115,6 +115,37 @@ public class SharingController : ControllerBase
         });
     }
 
+    [HttpPut("/api/shared/{token}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> UpdateSharedPlan(string token, [FromBody] JsonElement body)
+    {
+        var shareToken = await _db.ShareTokens.FirstOrDefaultAsync(s => s.Token == token);
+        if (shareToken == null)
+            return NotFound(new { message = "Invalid token." });
+
+        if (shareToken.ExpiresAt.HasValue && shareToken.ExpiresAt < DateTime.UtcNow)
+            return Gone();
+
+        if (shareToken.AccessType != "EDIT")
+            return StatusCode(403, new { message = "This share link is view-only." });
+
+        var client = _httpClientFactory.CreateClient();
+        var content = new StringContent(
+            body.ToString(),
+            System.Text.Encoding.UTF8,
+            "application/json");
+
+        var response = await client.PutAsync(
+            $"{_config["TravelPlanServiceUrl"]}/api/travel-plans/{shareToken.TravelPlanId}/by-token",
+            content);
+
+        if (!response.IsSuccessStatusCode)
+            return StatusCode((int)response.StatusCode, new { message = "Failed to update plan." });
+
+        var planJson = await response.Content.ReadAsStringAsync();
+        return Ok(JsonSerializer.Deserialize<JsonElement>(planJson));
+    }
+
     [HttpDelete("{id:guid}")]
     [Authorize]
     public async Task<IActionResult> Delete(Guid id)

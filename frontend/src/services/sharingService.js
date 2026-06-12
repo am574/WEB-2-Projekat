@@ -27,6 +27,11 @@ const sharingService = {
     return res.data;
   },
 
+  async editSharedPlan(token, data) {
+    const res = await api.put(`/api/shared/${token}`, data);
+    return res.data;
+  },
+
   async deleteShareToken(id) {
     await api.delete(`/api/sharing/${id}`);
   },

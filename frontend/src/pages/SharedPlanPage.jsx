@@ -9,13 +9,34 @@ export default function SharedPlanPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [editing, setEditing] = useState(false);
+  const [editForm, setEditForm] = useState({ name: '', description: '', notes: '' });
+  const [saveError, setSaveError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     sharingService.getSharedPlan(token)
-      .then(setData)
+      .then(d => {
+        setData(d);
+        setEditForm({ name: d.plan.name, description: d.plan.description || '', notes: d.plan.notes || '' });
+      })
       .catch(err => setError(err.response?.data?.message || 'This share link is invalid or has expired.'))
       .finally(() => setLoading(false));
   }, [token]);
+
+  const handleSave = async () => {
+    setSaveError('');
+    setSaving(true);
+    try {
+      const updated = await sharingService.editSharedPlan(token, editForm);
+      setData(prev => ({ ...prev, plan: { ...prev.plan, ...updated } }));
+      setEditing(false);
+    } catch (err) {
+      setSaveError(err.response?.data?.message || 'Failed to save changes.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (loading) return (
     <div className="min-vh-100 d-flex align-items-center justify-content-center">
@@ -34,6 +55,7 @@ export default function SharedPlanPage() {
   );
 
   const { plan, accessType } = data;
+  const canEdit = accessType === 'EDIT';
 
   return (
     <div className="container py-4">
@@ -43,12 +65,60 @@ export default function SharedPlanPage() {
           <p className="text-muted mb-0">{plan.startDate} → {plan.endDate}</p>
         </div>
         <div className="d-flex align-items-center gap-2">
-          <span className={`badge ${accessType === 'EDIT' ? 'bg-warning text-dark' : 'bg-info text-dark'}`}>
-            {accessType === 'EDIT' ? 'Edit Access' : 'View Only'}
+          <span className={`badge ${canEdit ? 'bg-warning text-dark' : 'bg-info text-dark'}`}>
+            {canEdit ? 'Edit Access' : 'View Only'}
           </span>
+          {canEdit && !editing && (
+            <button className="btn btn-outline-secondary btn-sm" onClick={() => setEditing(true)}>
+              Edit Plan
+            </button>
+          )}
           <Link to="/" className="btn btn-outline-primary btn-sm">Sign In</Link>
         </div>
       </div>
+
+      {editing && (
+        <div className="card mb-4">
+          <div className="card-body">
+            <h5 className="card-title mb-3">Edit Plan</h5>
+            <ErrorMessage message={saveError} />
+            <div className="mb-3">
+              <label className="form-label">Plan Name</label>
+              <input
+                className="form-control"
+                value={editForm.name}
+                onChange={e => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Description</label>
+              <textarea
+                className="form-control"
+                rows={3}
+                value={editForm.description}
+                onChange={e => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Notes</label>
+              <textarea
+                className="form-control"
+                rows={2}
+                value={editForm.notes}
+                onChange={e => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+              />
+            </div>
+            <div className="d-flex gap-2">
+              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button className="btn btn-outline-secondary" onClick={() => { setEditing(false); setSaveError(''); }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="row g-3">
         <div className="col-md-8">
@@ -112,14 +182,14 @@ export default function SharedPlanPage() {
             </div>
           </div>
 
-          {plan.checklist?.length > 0 && (
+          {plan.checklistItems?.length > 0 && (
             <div className="card">
               <div className="card-body">
                 <h5 className="card-title">Checklist</h5>
-                {plan.checklist.map(item => (
+                {plan.checklistItems.map(item => (
                   <div key={item.id} className="d-flex align-items-center gap-2 mb-1">
                     <input type="checkbox" readOnly checked={item.isCompleted} className="form-check-input" />
-                    <span className={item.isCompleted ? 'text-muted text-decoration-line-through' : ''}>{item.text}</span>
+                    <span className={item.isCompleted ? 'text-muted text-decoration-line-through' : ''}>{item.name}</span>
                   </div>
                 ))}
               </div>
